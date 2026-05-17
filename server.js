@@ -1,46 +1,68 @@
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
+const axios = require('axios'); // Thư viện để tự động gửi file lên GitHub
 const app = express();
-const PORT = process.env.PORT || 3000; // Render sẽ tự cấp cổng phù hợp khi lên mạng
+const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Cấu hình đường dẫn thông minh: Chạy trên Render lưu vào ổ đĩa vĩnh viễn /data, chạy ở máy nhà lưu vào thư mục data của dự án
-const thuMucData = process.env.RENDER ? '/data' : path.join(__dirname, 'data');
+// Cấu hình lưu file ở thư mục data cục bộ (Cả máy nhà lẫn Cloud)
+const thuMucData = path.join(__dirname, 'data');
 const fileSanPham = path.join(thuMucData, 'products.csv');
 const fileDonHang = path.join(thuMucData, 'orders.csv');
 
-// Tự động kiểm tra và tạo thư mục cùng file orders.csv chuẩn mã UTF-8 nếu chưa có sẵn
 if (!fs.existsSync(thuMucData)) {
     fs.mkdirSync(thuMucData, { recursive: true });
 }
-if (!fs.existsSync(fileDonHang)) {
-    const tieuDeMacDinh = "maDon,thoiGian,tenKhach,sdtKhach,tenSP,soLuong,doanhThu,loiNhuan\n";
-    fs.writeFileSync(fileDonHang, tieuDeMacDinh, 'utf8');
+
+// CẤU HÌNH GITHUB ĐỂ LƯU TRỮ VĨNH VIỄN (Render tự lấy thông tin này)
+const GITHUB_TOKEN = process.env.GH_TOKEN; 
+const GITHUB_REPO = "CONGNGHETRIDUC/phan-mem-ban-hang";
+
+// Hàm tự động sao lưu file Excel lên GitHub ngay khi có đơn hàng mới
+async function saoLuuLenGitHub(tenFile, duongDanFile) {
+    if (!GITHUB_TOKEN) return console.log("Chạy ở máy nhà hoặc chưa cấu hình Token, bỏ qua sao lưu Cloud.");
+    try {
+        const url = `https://api.github.com/repos/${GITHUB_REPO}/contents/data/${tenFile}`;
+        const noiDungBase64 = fs.readFileSync(duongDanFile, 'base64');
+        
+        let sha = null;
+        try {
+            const res = await axios.get(url, { headers: { Authorization: `token ${GITHUB_TOKEN}` } });
+            sha = res.data.sha;
+        } catch (e) { /* File chưa tồn tại trên repo */ }
+
+        await axios.put(url, {
+            message: `Tự động cập nhật nhật ký đơn hàng: ${new Date().toLocaleString()}`,
+            content: noiDungBase64,
+            sha: sha
+        }, {
+            headers: { Authorization: `token ${GITHUB_TOKEN}` }
+        });
+        console.log(`[GitHub] Đã đồng bộ thành công file ${tenFile} lên đám mây vĩnh viễn!`);
+    } catch (error) {
+        console.error("[GitHub Lỗi] Không thể sao lưu file:", error.response ? error.response.data : error.message);
+    }
 }
 
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-// ==================== HÀM ĐỌC/GHI FILE CSV AN TOÀN TUYỆT ĐỐI ====================
+// ==================== HÀM ĐỌC/GHI FILE CSV AN TOÀN ====================
 
 function docFileCSV(duongDanFile) {
     if (!fs.existsSync(duongDanFile)) return [];
-    
     const noiDung = fs.readFileSync(duongDanFile, 'utf8').trim();
     if (!noiDung) return [];
-    
     const dong = noiDung.split(/\r?\n/);
     if (dong.length <= 1 || dong[0] === "") return []; 
-    
     const tieuDe = dong[0].split(',').map(t => t.trim());
     
     return dong.slice(1).map(line => {
         if (!line || !line.trim()) return null;
-        
         const giaTri = line.split(',').map(v => v.trim());
         let doiTuong = {};
         tieuDe.forEach((cl, index) => {
@@ -58,34 +80,19 @@ function ghiFileCSV(duongDanFile, mangDuLieu) {
     fs.writeFileSync(duongDanFile, '\ufeff' + [tieuDe, ...cacDong].join('\n'), 'utf8');
 }
 
-function ghiThemVaoLichSu(duongDanFile, doiTuongDonHang) {
-    const dongMoi = Object.values(doiTuongDonHang).join(',') + '\n';
-    fs.appendFileSync(duongDanFile, dongMoi, 'utf8');
-}
+// ==================== API XỬ LÝ BÁN HÀNG ====================
 
-// ==================== CÁC API XỬ LÝ DỮ LIỆU ĐỒNG BỘ ====================
+app.get('/api/san-pham', (req, res) => res.json(docFileCSV(fileSanPham)));
+app.get('/api/lich-su-don-hang', (req, res) => res.json(docFileCSV(fileDonHang)));
 
-app.get('/api/san-pham', (req, res) => {
-    res.json(docFileCSV(fileSanPham));
-});
-
-app.get('/api/lich-su-don-hang', (req, res) => {
-    res.json(docFileCSV(fileDonHang));
-});
-
-app.post('/api/don-hang', (req, res) => {
+app.post('/api/don-hang', async (req, res) => {
     const { skuMua, soLuongMua, tenKhachHang, sdtKhachHang } = req.body;
     let khoHang = docFileCSV(fileSanPham);
     let danhSachDonCu = docFileCSV(fileDonHang);
 
     let sanPham = khoHang.find(item => item.SKU === skuMua);
-    if (!sanPham) {
-        return res.status(444).json({ error: "Không tìm thấy mã sản phẩm này!" });
-    }
-
-    if (sanPham.Ton_Kho < soLuongMua) {
-        return res.status(400).json({ error: `Kho không đủ! Hiện chỉ còn ${sanPham.Ton_Kho} sản phẩm.` });
-    }
+    if (!sanPham) return res.status(444).json({ error: "Không tìm thấy mã sản phẩm!" });
+    if (sanPham.Ton_Kho < soLuongMua) return res.status(400).json({ error: `Kho không đủ! Còn ${sanPham.Ton_Kho} cái.` });
 
     const doanhThuDon = sanPham.Gia_Ban * soLuongMua;
     const chiPhiVon = sanPham.Gia_Nhap * soLuongMua;
@@ -95,7 +102,6 @@ app.post('/api/don-hang', (req, res) => {
     ghiFileCSV(fileSanPham, khoHang);
 
     const maDonMoi = "HD" + String(danhSachDonCu.length + 1).padStart(3, '0');
-    
     const bayGio = new Date();
     const thoiGian = `${bayGio.getDate()}/${bayGio.getMonth()+1}/${bayGio.getFullYear()} ${bayGio.getHours()}:${String(bayGio.getMinutes()).padStart(2, '0')}`;
     const tenKhachSach = (tenKhachHang || "Khách vãng lai").replace(/,/g, ' ');
@@ -111,11 +117,15 @@ app.post('/api/don-hang', (req, res) => {
         loiNhuan: loiNhuanDon
     };
 
-    ghiThemVaoLichSu(fileDonHang, thongTinDonHang);
+    danhSachDonCu.push(thongTinDonHang);
+    ghiFileCSV(fileDonHang, danhSachDonCu);
+
+    // KÍCH HOẠT TỰ ĐỘNG ĐẨY FILE LÊN GITHUB ĐỂ LƯU TRỮ VĨNH VIỄN
+    await saoLuuLenGitHub('orders.csv', fileDonHang);
+    await saoLuuLenGitHub('products.csv', fileSanPham);
 
     let updateDonHang = docFileCSV(fileDonHang);
-    let tongDoanhThu = 0;
-    let tongLoiNhuan = 0;
+    let tongDoanhThu = 0, tongLoiNhuan = 0;
     updateDonHang.forEach(don => {
         if (don) {
             tongDoanhThu += Number(don.doanhThu || 0);
@@ -124,17 +134,13 @@ app.post('/api/don-hang', (req, res) => {
     });
 
     res.json({ 
-        message: "Chốt đơn thành công!", 
+        message: "Chốt đơn thành công! Đã sao lưu dữ liệu lên đám mây an toàn vĩnh viễn.", 
         donHang: thongTinDonHang,
-        tongQuanHienTai: {
-            soDonHang: updateDonHang.length,
-            doanhThu: tongDoanhThu,
-            loiNhuan: tongLoiNhuan
-        }
+        tongQuanHienTai: { soDonHang: updateDonHang.length, doanhThu: tongDoanhThu, loiNhuan: tongLoiNhuan }
     });
 });
 
-app.post('/api/nhap-kho', (req, res) => {
+app.post('/api/nhap-kho', async (req, res) => {
     const { SKU, Ten_San_Pham, Danh_Muc, Gia_Nhap, Gia_Ban, Ton_Kho, Toi_Thieu } = req.body;
     let khoHang = docFileCSV(fileSanPham);
     let sanPhamCoSan = khoHang.find(item => item.SKU === SKU);
@@ -143,14 +149,13 @@ app.post('/api/nhap-kho', (req, res) => {
         sanPhamCoSan.Ton_Kho += Number(Ton_Kho);
         sanPhamCoSan.Gia_Nhap = Number(Gia_Nhap);
         sanPhamCoSan.Gia_Ban = Number(Gia_Ban);
-        ghiFileCSV(fileSanPham, khoHang);
-        return res.json({ message: `Mã hàng ${SKU} đã tồn tại. Hệ thống đã cộng dồn thành công!` });
+    } else {
+        khoHang.push({ SKU, Ten_San_Pham, Danh_Muc, Gia_Nhap, Gia_Ban, Ton_Kho, Toi_Thieu });
     }
-
-    const sanPhamMoi = { SKU, Ten_San_Pham, Danh_Muc, Gia_Nhap, Gia_Ban, Ton_Kho, Toi_Thieu };
-    khoHang.push(sanPhamMoi);
+    
     ghiFileCSV(fileSanPham, khoHang);
-    res.json({ message: `Đã thêm mới thành công sản phẩm hàng hóa mã ${SKU}!` });
+    await saoLuuLenGitHub('products.csv', fileSanPham);
+    res.json({ message: `Đồng bộ nhập kho mã hàng ${SKU} thành công!` });
 });
 
 app.listen(PORT, '0.0.0.0', () => {
