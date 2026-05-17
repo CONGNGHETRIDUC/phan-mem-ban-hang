@@ -1,0 +1,12 @@
+{
+  "name": "phan-mem-ban-hang-tri-duc",
+  "version": "1.0.0",
+  "description": "Phần mềm quản lý bán hàng Trí Đức",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2"
+  }
+}

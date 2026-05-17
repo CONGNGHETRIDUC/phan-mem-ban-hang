@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hệ Thống Bán Hàng & Kho Doanh Nghiệp</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @media print {
+            body * { visibility: hidden; }
+            #vungInHoaDon, #vungInHoaDon * { visibility: visible; }
+            #vungInHoaDon { position: absolute; left: 0; top: 0; width: 100%; }
+            #nutIn { display: none; }
+        }
+    </style>
+</head>
+<body class="bg-gray-100 font-sans">
+
+    <header class="bg-blue-600 text-white p-4 shadow-md">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-2xl font-bold">📦 HỆ THỐNG QUẢN LÝ BÁN HÀNG & KHO</h1>
+            <span class="bg-blue-700 px-3 py-1 rounded text-sm font-semibold">Doanh Nghiệp Trí Đức</span>
+        </div>
+    </header>
+
+    <section class="container mx-auto mt-6 px-4 grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="bg-white p-4 rounded-lg shadow-sm border-l-4 border-blue-500 flex items-center justify-between">
+            <div><p class="text-xs text-gray-400 font-medium uppercase">Tổng đơn hàng đã bán</p><h3 id="widgetDonHang" class="text-2xl font-bold text-gray-700 mt-1">0 đơn</h3></div><div class="text-3xl">🛒</div>
+        </div>
+        <div class="bg-white p-4 rounded-lg shadow-sm border-l-4 border-yellow-500 flex items-center justify-between">
+            <div><p class="text-xs text-gray-400 font-medium uppercase">Tổng Doanh Thu</p><h3 id="widgetDoanhThu" class="text-2xl font-bold text-yellow-600 mt-1">0 ₫</h3></div><div class="text-3xl">💰</div>
+        </div>
+        <div class="bg-white p-4 rounded-lg shadow-sm border-l-4 border-purple-500 flex items-center justify-between">
+            <div><p class="text-xs text-gray-400 font-medium uppercase">Lợi Nhuận Thực Tế (Lãi)</p><h3 id="widgetLoiNhuan" class="text-2xl font-bold text-purple-600 mt-1">0 ₫</h3></div><div class="text-3xl">📈</div>
+        </div>
+    </section>
+
+    <main class="container mx-auto my-6 p-4 grid grid-cols-1 lg:grid-cols-3 gap-8">
+        
+        <div class="lg:col-span-1 space-y-6">
+            <div class="bg-white p-6 rounded-lg shadow-md border-t-4 border-green-500">
+                <h2 class="text-xl font-semibold mb-3 text-green-700 border-b pb-2">🛒 Tạo Đơn Hàng Mới</h2>
+                <form id="formBanHang" class="space-y-3">
+                    <div>
+                        <label class="block text-xs font-medium text-gray-500 mb-0.5">Tên Khách Hàng</label>
+                        <input type="text" id="tenKhachHang" placeholder="Tên người mua" class="w-full p-1.5 border rounded outline-none text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-gray-500 mb-0.5">Số Điện Thoại</label>
+                        <input type="text" id="sdtKhachHang" placeholder="Số điện thoại khách" class="w-full p-1.5 border rounded outline-none text-sm">
+                    </div>
+                    <hr class="my-2">
+                    <div>
+                        <label class="block text-xs font-medium text-gray-500 mb-0.5">Chọn Sản Phẩm Bán</label>
+                        <select id="skuMua" required onchange="capNhatGiaVaTonKho()" class="w-full p-2 border rounded focus:ring-2 focus:ring-green-400 outline-none bg-white text-sm font-semibold text-gray-700">
+                            <option value="">-- Bấm để chọn sản phẩm --</option>
+                        </select>
+                    </div>
+                    <div id="KhuVucGoiY" class="bg-gray-50 p-3 rounded text-xs text-gray-600 hidden space-y-1 border">
+                        <p>🔹 Số lượng trong kho còn: <span id="goiYTonKho" class="font-bold text-gray-800">0</span> cái</p>
+                        <p>🔹 Đơn giá bán: <span id="goiYGiaBan" class="font-bold text-blue-600">0đ</span></p>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-gray-500 mb-0.5">Số Lượng Mua</label>
+                        <input type="number" id="soLuongMua" min="1" value="1" required oninput="tinhTamTinh()" class="w-full p-1.5 border rounded focus:ring-2 focus:ring-green-400 outline-none text-sm">
+                    </div>
+                    <div class="pt-2 border-t flex justify-between items-center">
+                        <span class="text-sm font-medium text-gray-500">Thành tiền (Tạm tính):</span>
+                        <span id="tongTamTinh" class="text-xl font-bold text-red-600">0 ₫</span>
+                    </div>
+                    <button type="submit" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded transition duration-200 shadow-sm text-sm">
+                        Chốt Đơn & Xuất Hóa Đơn
+                    </button>
+                </form>
+            </div>
+
+            <div class="bg-white p-6 rounded-lg shadow-md border-t-4 border-blue-500">
+                <h2 class="text-xl font-semibold mb-4 text-blue-700 border-b pb-2">➕ Nhập Hàng / Thêm Mã Mới</h2>
+                <form id="formNhapHang" class="space-y-3">
+                    <div><label class="block text-xs font-medium text-gray-500">Mã SKU</label><input type="text" id="nhapSKU" placeholder="Ví dụ: SP004" required class="w-full p-1.5 border rounded outline-none text-sm"></div>
+                    <div><label class="block text-xs font-medium text-gray-500">Tên Sản Phẩm</label><input type="text" id="nhapTen" placeholder="Tên hàng hóa" required class="w-full p-1.5 border rounded outline-none text-sm"></div>
+                    <div><label class="block text-xs font-medium text-gray-500">Danh Mục</label><input type="text" id="nhapDanhMuc" placeholder="Ví dụ: Linh kiện" required class="w-full p-1.5 border rounded outline-none text-sm"></div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div><label class="block text-xs font-medium text-gray-500">Giá Nhập</label><input type="number" id="nhapGiaNhap" value="0" required class="w-full p-1.5 border rounded outline-none text-sm"></div>
+                        <div><label class="block text-xs font-medium text-gray-500">Giá Bán</label><input type="number" id="nhapGiaBan" value="0" required class="w-full p-1.5 border rounded outline-none text-sm"></div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div><label class="block text-xs font-medium text-gray-500">Số Lượng Nhập</label><input type="number" id="nhapTonKho" min="1" value="1" required class="w-full p-1.5 border rounded outline-none text-sm"></div>
+                        <div><label class="block text-xs font-medium text-gray-500">Mức Tối Thiểu</label><input type="number" id="nhapToiThieu" value="5" required class="w-full p-1.5 border rounded outline-none text-sm"></div>
+                    </div>
+                    <button type="submit" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 rounded text-sm transition duration-200">Xác Nhận Nhập Kho</button>
+                </form>
+            </div>
+            <div id="thongBao" class="mt-4 p-3 rounded hidden text-center font-medium shadow-sm"></div>
+        </div>
+
+        <div class="lg:col-span-2 bg-white p-6 rounded-lg shadow-md">
+            <div class="flex justify-between items-center mb-4 border-b pb-2">
+                <h2 class="text-xl font-semibold text-gray-700">📦 Tình Trạng Kho Hàng (Thời gian thực)</h2>
+                <button onclick="taiDanhSachSanPham()" class="bg-gray-500 hover:bg-gray-600 text-white text-sm py-1 px-3 rounded">🔄 Tải lại kho</button>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-gray-200 text-gray-700 uppercase text-sm">
+                            <th class="p-3 border">SKU</th><th class="p-3 border">Tên Sản Phẩm</th><th class="p-3 border">Danh Mục</th><th class="p-3 border">Giá Bán</th><th class="p-3 border-b bg-yellow-50 text-center">Tồn Kho</th>
+                        </tr>
+                    </thead>
+                    <tbody id="bangSanPham" class="text-gray-600 text-sm"></tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <section class="container mx-auto my-8 px-4">
+        <div class="bg-white p-6 rounded-lg shadow-md border-t-4 border-purple-500">
+            <h2 class="text-xl font-semibold text-gray-700 mb-4 flex items-center gap-2">📑 Toàn Bộ Nhật Ký Đơn Hàng (Lưu vĩnh viễn trong file orders.csv)</h2>
+            <div class="overflow-x-auto max-h-96"> <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-gray-100 text-gray-600 uppercase text-xs font-bold border-b sticky top-0">
+                            <th class="p-3 border bg-gray-100">Mã Đơn</th>
+                            <th class="p-3 border bg-gray-100">Thời Gian</th>
+                            <th class="p-3 border bg-gray-100">Khách Hàng</th>
+                            <th class="p-3 border bg-gray-100">Số Điện Thoại</th>
+                            <th class="p-3 border bg-gray-100">Sản Phẩm</th>
+                            <th class="p-3 border text-center bg-gray-100">SL</th>
+                            <th class="p-3 border text-right bg-gray-100">Doanh Thu</th>
+                            <th class="p-3 border text-right bg-purple-50 text-purple-700">Tiền Lãi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="bangLichSuDonHang" class="text-gray-600 text-sm"></tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <div id="modalHoaDon" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50 p-4">
+        <div class="bg-white rounded-lg shadow-2xl p-6 max-w-md w-full relative">
+            <button onclick="dongModalHoaDon()" class="absolute top-3 right-4 text-gray-400 hover:text-gray-600 text-xl font-bold">&times;</button>
+            <div id="vungInHoaDon" class="p-2 border border-dashed border-gray-300 rounded bg-amber-50/20">
+                <div class="text-center border-b border-gray-300 pb-2 mb-2">
+                    <h3 class="text-lg font-bold text-gray-800 uppercase tracking-wide">HÓA ĐƠN BÁN LẺ</h3>
+                    <p class="text-xs font-bold text-blue-600">CÔNG TY TNHH CÔNG NGHỆ TRÍ ĐỨC HÀ TĨNH</p>
+                    <p class="text-[10px] text-gray-400">Mã hóa đơn: <span id="hdMaDonHang" class="font-bold text-gray-700">--</span></p>
+                    <p class="text-[10px] text-gray-400">Ngày tạo: <span id="hdNgayTao">--/--/----</span></p>
+                </div>
+                <div class="text-xs border-b border-gray-200 pb-2 mb-2 text-gray-600 space-y-0.5">
+                    <p>👤 <strong>Khách hàng:</strong> <span id="hdTenKhach">--</span></p>
+                    <p>📞 <strong>Điện thoại:</strong> <span id="hdSdtKhach">--</span></p>
+                </div>
+                <div class="space-y-2 text-sm text-gray-700 mb-3">
+                    <div class="flex justify-between"><span class="font-medium text-gray-500">Sản phẩm mua:</span> <span id="hdTenSP" class="font-semibold text-right max-w-[200px]">--</span></div>
+                    <div class="flex justify-between"><span class="font-medium text-gray-500">Đơn giá:</span> <span id="hdDonGia">--</span></div>
+                    <div class="flex justify-between"><span class="font-medium text-gray-500">Số lượng:</span> <span id="hdSoLuong" class="font-bold">--</span></div>
+                </div>
+                <div class="border-t border-double border-gray-400 pt-3 flex justify-between items-center mb-1">
+                    <span class="font-bold text-gray-800 text-base">TỔNG TIỀN:</span>
+                    <span id="hdTongTien" class="text-xl font-black text-red-600">0 ₫</span>
+                </div>
+                <p class="text-center text-[10px] italic text-gray-400 mt-3">Cảm ơn quý khách. Hẹn gặp lại!</p>
+            </div>
+            <div class="mt-5 flex gap-3">
+                <button onclick="dongModalHoaDon()" class="w-1/3 bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-2 rounded text-sm transition">Đóng</button>
+                <button id="nutIn" onclick="window.print()" class="w-2/3 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 rounded text-sm shadow transition flex justify-center items-center gap-1">🖨️ In Hóa Đơn (Xuất PDF)</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let danhSachGlobal = [];
+
+        function dinhDangTien(so) {
+            return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(so);
+        }
+
+        function hienThongBao(noiDung, laLoi = false) {
+            const thongBao = document.getElementById('thongBao');
+            thongBao.className = `mt-4 p-3 rounded ${laLoi ? 'bg-red-100 text-red-700 border border-red-200' : 'bg-green-100 text-green-700 border border-green-200'} font-medium`;
+            thongBao.innerText = noiDung;
+            thongBao.classList.remove('hidden');
+            setTimeout(() => thongBao.classList.add('hidden'), 4000);
+        }
+
+        async function taiDanhSachSanPham() {
+            try {
+                const response = await fetch('/api/san-pham');
+                danhSachGlobal = await response.json();
+                const bang = document.getElementById('bangSanPham');
+                const selectBox = document.getElementById('skuMua');
+                bang.innerHTML = '';
+                selectBox.innerHTML = '<option value="">-- Bấm để chọn sản phẩm --</option>';
+
+                danhSachGlobal.forEach(sp => {
+                    // CẢNH BÁO TỒN KHO THÔNG MINH BẰNG MÀU SẮC & BIỂU TƯỢNG
+                    const sapHetHang = sp.Ton_Kho <= sp.Toi_Thieu;
+                    const mauTonKho = sapHetHang ? 'text-red-600 font-bold bg-red-100 animate-pulse' : 'text-green-600 font-semibold';
+                    const bieuTuongCanhBao = sapHetHang ? '⚠️ ' : '';
+
+                    bang.innerHTML += `
+                        <tr class="hover:bg-gray-50 border-b">
+                            <td class="p-3 border font-mono font-bold">${sp.SKU}</td>
+                            <td class="p-3 border font-medium text-gray-800">${sp.Ten_San_Pham}</td>
+                            <td class="p-3 border">${sp.Danh_Muc}</td>
+                            <td class="p-3 border text-right">${dinhDangTien(sp.Gia_Ban)}</td>
+                            <td class="p-3 border text-center ${mauTonKho}">${bieuTuongCanhBao}${sp.Ton_Kho}</td>
+                        </tr>
+                    `;
+                    selectBox.innerHTML += `<option value="${sp.SKU}">${sp.Ten_San_Pham} (${sp.SKU})</option>`;
+                });
+            } catch (error) {
+                console.error("Lỗi khi tải dữ liệu sản phẩm:", error);
+            }
+        }
+
+        async function taiLichSuDonHang() {
+            try {
+                const response = await fetch('/api/lich-su-don-hang');
+                const lichSu = await response.json();
+                const bang = document.getElementById('bangLichSuDonHang');
+                
+                bang.innerHTML = '';
+                if (lichSu.length === 0) {
+                    bang.innerHTML = `<tr><td colspan="8" class="p-4 text-center text-gray-400 italic">Chưa có giao dịch nào được lưu vĩnh viễn.</td></tr>`;
+                    return;
+                }
+
+                // Tính toán cộng dồn tài chính ngay từ file Excel khi load trang
+                let tongDT = 0, tongLN = 0;
+
+                // Đảo ngược mảng để đơn hàng mới nhất luôn nằm trên cùng
+                lichSu.reverse().forEach(don => {
+                    tongDT += Number(don.doanhThu);
+                    tongLN += Number(don.loiNhuan);
+
+                    bang.innerHTML += `
+                        <tr class="hover:bg-gray-50 border-b text-xs">
+                            <td class="p-3 border font-mono font-bold text-blue-600">${don.maDon}</td>
+                            <td class="p-3 border text-gray-400">${don.thoiGian}</td>
+                            <td class="p-3 border font-semibold text-gray-800">${don.tenKhach}</td>
+                            <td class="p-3 border font-mono">${don.sdtKhach}</td>
+                            <td class="p-3 border font-medium">${don.tenSP}</td>
+                            <td class="p-3 border text-center font-bold">${don.soLuong}</td>
+                            <td class="p-3 border text-right font-semibold">${dinhDangTien(don.doanhThu)}</td>
+                            <td class="p-3 border text-right font-bold text-purple-600 bg-purple-50/50">${dinhDangTien(don.loiNhuan)}</td>
+                        </tr>
+                    `;
+                });
+
+                // Đồng bộ số liệu lên các ô Thống kê trên đầu trang
+                document.getElementById('widgetDonHang').innerText = lichSu.length + " đơn";
+                document.getElementById('widgetDoanhThu').innerText = dinhDangTien(tongDT);
+                document.getElementById('widgetLoiNhuan').innerText = dinhDangTien(tongLN);
+
+            } catch (error) {
+                console.error("Lỗi tải nhật ký đơn vĩnh viễn:", error);
+            }
+        }
+
+        function capNhatGiaVaTonKho() {
+            const skuSelected = document.getElementById('skuMua').value;
+            const khuVucGoiY = document.getElementById('KhuVucGoiY');
+            if (!skuSelected) {
+                khuVucGoiY.classList.add('hidden');
+                document.getElementById('tongTamTinh').innerText = "0 ₫";
+                return;
+            }
+            const sp = danhSachGlobal.find(item => item.SKU === skuSelected);
+            if (sp) {
+                document.getElementById('goiYTonKho').innerText = sp.Ton_Kho;
+                document.getElementById('goiYGiaBan').innerText = dinhDangTien(sp.Gia_Ban);
+                khuVucGoiY.classList.remove('hidden');
+                document.getElementById('soLuongMua').value = 1;
+                tinhTamTinh();
+            }
+        }
+
+        function tinhTamTinh() {
+            const skuSelected = document.getElementById('skuMua').value;
+            const soLuong = Number(document.getElementById('soLuongMua').value);
+            if (!skuSelected) return;
+            const sp = danhSachGlobal.find(item => item.SKU === skuSelected);
+            if (sp) {
+                document.getElementById('tongTamTinh').innerText = dinhDangTien(sp.Gia_Ban * soLuong);
+            }
+        }
+
+        function moModalHoaDon(donHang, sp) {
+            document.getElementById('hdMaDonHang').innerText = donHang.maDon;
+            document.getElementById('hdNgayTao').innerText = donHang.thoiGian;
+            document.getElementById('hdTenKhach').innerText = donHang.tenKhach;
+            document.getElementById('hdSdtKhach').innerText = donHang.sdtKhach;
+            document.getElementById('hdTenSP').innerText = donHang.tenSP;
+            document.getElementById('hdDonGia').innerText = dinhDangTien(sp.Gia_Ban);
+            document.getElementById('hdSoLuong').innerText = donHang.soLuong;
+            document.getElementById('hdTongTien').innerText = dinhDangTien(donHang.doanhThu);
+            document.getElementById('modalHoaDon').classList.remove('hidden');
+        }
+
+        function dongModalHoaDon() {
+            document.getElementById('modalHoaDon').classList.add('hidden');
+        }
+
+        document.getElementById('formBanHang').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const skuMua = document.getElementById('skuMua').value;
+            const soLuongMua = Number(document.getElementById('soLuongMua').value);
+            const tenKhachHang = document.getElementById('tenKhachHang').value.trim();
+            const sdtKhachHang = document.getElementById('sdtKhachHang').value.trim();
+            const sanPhamGoc = danhSachGlobal.find(item => item.SKU === skuMua);
+
+            const response = await fetch('/api/don-hang', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ skuMua, soLuongMua, tenKhachHang, sdtKhachHang })
+            });
+            const ketQua = await response.json();
+            if (response.ok) {
+                hienThongBao(ketQua.message);
+                taiDanhSachSanPham();
+                taiLichSuDonHang(); 
+                document.getElementById('formBanHang').reset();
+                document.getElementById('KhuVucGoiY').classList.add('hidden');
+                document.getElementById('tongTamTinh').innerText = "0 ₫";
+                
+                moModalHoaDon(ketQua.donHang, sanPhamGoc);
+            } else {
+                hienThongBao(ketQua.error, true);
+            }
+        });
+
+        document.getElementById('formNhapHang').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const data = {
+                SKU: document.getElementById('nhapSKU').value.trim(),
+                Ten_San_Pham: document.getElementById('nhapTen').value.trim(),
+                Danh_Muc: document.getElementById('nhapDanhMuc').value.trim(),
+                Gia_Nhap: Number(document.getElementById('nhapGiaNhap').value),
+                Gia_Ban: Number(document.getElementById('nhapGiaBan').value),
+                Ton_Kho: Number(document.getElementById('nhapTonKho').value),
+                Toi_Thieu: Number(document.getElementById('nhapToiThieu').value)
+            };
+
+            const response = await fetch('/api/nhap-kho', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            const ketQua = await response.json();
+            if (response.ok) {
+                hienThongBao(ketQua.message);
+                taiDanhSachSanPham();
+                taiLichSuDonHang();
+                document.getElementById('formNhapHang').reset();
+            } else {
+                hienThongBao(ketQua.error, true);
+            }
+        });
+
+        // Khởi động đồng bộ dữ liệu
+        taiDanhSachSanPham();
+        taiLichSuDonHang();
+    </script>
+</body>
+</html>
