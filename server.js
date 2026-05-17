@@ -32,7 +32,7 @@ async function saoLuuLenGitHub(tenFile, duongDanFile) {
         } catch (e) { /* File chưa tồn tại */ }
 
         await axios.put(url, {
-            message: `Tự động cập nhật nhật ký đơn hàng: ${new Date().toLocaleString()}`,
+            message: `Tự động cập nhật nhật ký: ${new Date().toLocaleString()}`,
             content: noiDungBase64,
             sha: sha
         }, {
@@ -46,17 +46,16 @@ async function saoLuuLenGitHub(tenFile, duongDanFile) {
 
 app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
 
-// ==================== HÀM XỬ LÝ CSV TỰ ĐỘNG KHÔNG LỖI ====================
 function docFileCSV(duongDanFile) {
     if (!fs.existsSync(duongDanFile)) return [];
     const noiDung = fs.readFileSync(duongDanFile, 'utf8').trim();
     if (!noiDung) return [];
-    const dong = noiDung.split(/\r?\n/);
-    if (dong.length <= 1 || dong[0] === "") return []; 
-    const tieuDe = dong[0].split(',').map(t => t.trim());
+    const dong = noiDung.split(/\r?\n/).filter(line => line.trim() !== "");
+    if (dong.length <= 1) return []; 
+    
+    const tieuDe = dong[0].replace(/^\uFEFF/, '').split(',').map(t => t.trim());
     
     return dong.slice(1).map(line => {
-        if (!line || !line.trim()) return null;
         const giaTri = line.split(',').map(v => v.trim());
         let doiTuong = {};
         tieuDe.forEach((cl, index) => {
@@ -64,7 +63,7 @@ function docFileCSV(duongDanFile) {
             doiTuong[cl] = (isNaN(val) || val === "") ? val : Number(val);
         });
         return doiTuong;
-    }).filter(item => item !== null);
+    });
 }
 
 function ghiFileCSV(duongDanFile, mangDuLieu) {
@@ -74,10 +73,7 @@ function ghiFileCSV(duongDanFile, mangDuLieu) {
     fs.writeFileSync(duongDanFile, '\ufeff' + [tieuDe, ...cacDong].join('\n'), 'utf8');
 }
 
-// ==================== HỆ THỐNG API ĐỒNG BỘ ====================
 app.get('/api/san-pham', (req, res) => res.json(docFileCSV(fileSanPham)));
-
-// API Lấy toàn bộ danh sách lịch sử đơn hàng để vẽ bảng
 app.get('/api/lich-su-don-hang', (req, res) => res.json(docFileCSV(fileDonHang)));
 
 app.post('/api/don-hang', async (req, res) => {
