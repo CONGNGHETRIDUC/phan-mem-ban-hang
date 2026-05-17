@@ -3,362 +3,519 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hệ Thống Bán Hàng & Kho Doanh Nghiệp</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Hệ Thống Quản Lý Bán Hàng - Trí Đức Tech</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
-        @media print {
-            body * { visibility: hidden; }
-            #vungInHoaDon, #vungInHoaDon * { visibility: visible; }
-            #vungInHoaDon { position: absolute; left: 0; top: 0; width: 100%; }
-            #nutIn { display: none; }
+        :root {
+            --bg-primary: #f8fafc;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --success: #10b981;
+            --danger: #ef4444;
+            --card-bg: #ffffff;
+            --border: #e2e8f0;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-main);
+            padding: 24px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Header công ty đẳng cấp */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 32px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .logo-area h1 {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary);
+            letter-spacing: -0.5px;
+        }
+
+        .logo-area p {
+            font-size: 14px;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        .status-badge {
+            background: #dcfce7;
+            color: #15803d;
+            padding: 6px 12px;
+            border-radius: 99px;
+            font-size: 13px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* Thẻ thống kê tài chính trực quan */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px;
+            margin-bottom: 32px;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            padding: 24px;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .stat-info h3 {
+            font-size: 14px;
+            color: var(--text-muted);
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-info p {
+            font-size: 24px;
+            font-weight: 700;
+            margin-top: 8px;
+        }
+
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .icon-blue { background: #eff6ff; color: #2563eb; }
+        .icon-green { background: #ecfdf5; color: #10b981; }
+        .icon-orange { background: #fff7ed; color: #f97316; }
+
+        /* Bố cục 2 cột xử lý nghiệp vụ */
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 32px;
+            margin-bottom: 32px;
+        }
+
+        @media (max-width: 768px) {
+            .main-content { grid-template-columns: 1fr; }
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            padding: 24px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.01);
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Form nhập liệu chuyên nghiệp */
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: #475569;
+        }
+
+        .form-control {
+            width: 100px;
+            width: 100%;
+            padding: 10px 14px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            font-size: 14px;
+            transition: all 0.2s;
+            background: #f8fafc;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: #fff;
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { background: var(--primary-hover); }
+        .btn-success { background: var(--success); color: white; }
+        .btn-success:hover { background: #059669; }
+
+        /* Bảng hiển thị kho hàng scannable cực đã mắt */
+        .inventory-section {
+            background: var(--card-bg);
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            padding: 24px;
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+            margin-top: 16px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 14px;
+        }
+
+        th {
+            background: #f1f5f9;
+            padding: 14px 16px;
+            font-weight: 600;
+            color: #475569;
+            border-bottom: 2px solid var(--border);
+        }
+
+        td {
+            padding: 14px 16px;
+            border-bottom: 1px solid var(--border);
+            color: #334155;
+        }
+
+        tr:hover td { background: #f8fafc; }
+
+        /* Custom Badge định dạng trạng thái kho */
+        .badge {
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .badge-safe { background: #dcfce7; color: #16a34a; }
+        .badge-danger { background: #fee2e2; color: #dc2626; }
+
+        /* Hộp thông báo nổi (Toast Notification) tinh tế */
+        #toast {
+            position: fixed;
+            top: 24px;
+            right: 24px;
+            padding: 16px 24px;
+            border-radius: 12px;
+            color: white;
+            font-weight: 500;
+            font-size: 14px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            display: none;
+            z-index: 1000;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
         }
     </style>
 </head>
-<body class="bg-gray-100 font-sans">
+<body>
 
-    <header class="bg-blue-600 text-white p-4 shadow-md">
-        <div class="container mx-auto flex justify-between items-center">
-            <h1 class="text-2xl font-bold">📦 HỆ THỐNG QUẢN LÝ BÁN HÀNG & KHO</h1>
-            <span class="bg-blue-700 px-3 py-1 rounded text-sm font-semibold">Doanh Nghiệp Trí Đức</span>
+<div class="container">
+    <header>
+        <div class="logo-area">
+            <h1>TRÍ ĐỨC TECHNOLOGY</h1>
+            <p>Hệ thống quản lý bán hàng đám mây thông minh</p>
+        </div>
+        <div class="status-badge">
+            <i class="fa-solid fa-cloud"></i> Đang hoạt động trực tuyến
         </div>
     </header>
 
-    <section class="container mx-auto mt-6 px-4 grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div class="bg-white p-4 rounded-lg shadow-sm border-l-4 border-blue-500 flex items-center justify-between">
-            <div><p class="text-xs text-gray-400 font-medium uppercase">Tổng đơn hàng đã bán</p><h3 id="widgetDonHang" class="text-2xl font-bold text-gray-700 mt-1">0 đơn</h3></div><div class="text-3xl">🛒</div>
+    <div class="dashboard-grid">
+        <div class="stat-card">
+            <div class="stat-info">
+                <h3>Tổng Sản Phẩm</h3>
+                <p id="stat-total-items">0</p>
+            </div>
+            <div class="stat-icon icon-blue"><i class="fa-solid fa-boxes-stacked"></i></div>
         </div>
-        <div class="bg-white p-4 rounded-lg shadow-sm border-l-4 border-yellow-500 flex items-center justify-between">
-            <div><p class="text-xs text-gray-400 font-medium uppercase">Tổng Doanh Thu</p><h3 id="widgetDoanhThu" class="text-2xl font-bold text-yellow-600 mt-1">0 ₫</h3></div><div class="text-3xl">💰</div>
+        <div class="stat-card">
+            <div class="stat-info">
+                <h3>Doanh Thu</h3>
+                <p id="stat-revenue" style="color: var(--primary);">0đ</p>
+            </div>
+            <div class="stat-icon icon-blue"><i class="fa-solid fa-wallet"></i></div>
         </div>
-        <div class="bg-white p-4 rounded-lg shadow-sm border-l-4 border-purple-500 flex items-center justify-between">
-            <div><p class="text-xs text-gray-400 font-medium uppercase">Lợi Nhuận Thực Tế (Lãi)</p><h3 id="widgetLoiNhuan" class="text-2xl font-bold text-purple-600 mt-1">0 ₫</h3></div><div class="text-3xl">📈</div>
-        </div>
-    </section>
-
-    <main class="container mx-auto my-6 p-4 grid grid-cols-1 lg:grid-cols-3 gap-8">
-        
-        <div class="lg:col-span-1 space-y-6">
-            <div class="bg-white p-6 rounded-lg shadow-md border-t-4 border-green-500">
-                <h2 class="text-xl font-semibold mb-3 text-green-700 border-b pb-2">🛒 Tạo Đơn Hàng Mới</h2>
-                <form id="formBanHang" class="space-y-3">
-                    <div>
-                        <label class="block text-xs font-medium text-gray-500 mb-0.5">Tên Khách Hàng</label>
-                        <input type="text" id="tenKhachHang" placeholder="Tên người mua" class="w-full p-1.5 border rounded outline-none text-sm">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-medium text-gray-500 mb-0.5">Số Điện Thoại</label>
-                        <input type="text" id="sdtKhachHang" placeholder="Số điện thoại khách" class="w-full p-1.5 border rounded outline-none text-sm">
-                    </div>
-                    <hr class="my-2">
-                    <div>
-                        <label class="block text-xs font-medium text-gray-500 mb-0.5">Chọn Sản Phẩm Bán</label>
-                        <select id="skuMua" required onchange="capNhatGiaVaTonKho()" class="w-full p-2 border rounded focus:ring-2 focus:ring-green-400 outline-none bg-white text-sm font-semibold text-gray-700">
-                            <option value="">-- Bấm để chọn sản phẩm --</option>
-                        </select>
-                    </div>
-                    <div id="KhuVucGoiY" class="bg-gray-50 p-3 rounded text-xs text-gray-600 hidden space-y-1 border">
-                        <p>🔹 Số lượng trong kho còn: <span id="goiYTonKho" class="font-bold text-gray-800">0</span> cái</p>
-                        <p>🔹 Đơn giá bán: <span id="goiYGiaBan" class="font-bold text-blue-600">0đ</span></p>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-medium text-gray-500 mb-0.5">Số Lượng Mua</label>
-                        <input type="number" id="soLuongMua" min="1" value="1" required oninput="tinhTamTinh()" class="w-full p-1.5 border rounded focus:ring-2 focus:ring-green-400 outline-none text-sm">
-                    </div>
-                    <div class="pt-2 border-t flex justify-between items-center">
-                        <span class="text-sm font-medium text-gray-500">Thành tiền (Tạm tính):</span>
-                        <span id="tongTamTinh" class="text-xl font-bold text-red-600">0 ₫</span>
-                    </div>
-                    <button type="submit" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded transition duration-200 shadow-sm text-sm">
-                        Chốt Đơn & Xuất Hóa Đơn
-                    </button>
-                </form>
+        <div class="stat-card">
+            <div class="stat-info">
+                <h3>Lợi Nhuận</h3>
+                <p id="stat-profit" style="color: var(--success);">0đ</p>
             </div>
-
-            <div class="bg-white p-6 rounded-lg shadow-md border-t-4 border-blue-500">
-                <h2 class="text-xl font-semibold mb-4 text-blue-700 border-b pb-2">➕ Nhập Hàng / Thêm Mã Mới</h2>
-                <form id="formNhapHang" class="space-y-3">
-                    <div><label class="block text-xs font-medium text-gray-500">Mã SKU</label><input type="text" id="nhapSKU" placeholder="Ví dụ: SP004" required class="w-full p-1.5 border rounded outline-none text-sm"></div>
-                    <div><label class="block text-xs font-medium text-gray-500">Tên Sản Phẩm</label><input type="text" id="nhapTen" placeholder="Tên hàng hóa" required class="w-full p-1.5 border rounded outline-none text-sm"></div>
-                    <div><label class="block text-xs font-medium text-gray-500">Danh Mục</label><input type="text" id="nhapDanhMuc" placeholder="Ví dụ: Linh kiện" required class="w-full p-1.5 border rounded outline-none text-sm"></div>
-                    <div class="grid grid-cols-2 gap-2">
-                        <div><label class="block text-xs font-medium text-gray-500">Giá Nhập</label><input type="number" id="nhapGiaNhap" value="0" required class="w-full p-1.5 border rounded outline-none text-sm"></div>
-                        <div><label class="block text-xs font-medium text-gray-500">Giá Bán</label><input type="number" id="nhapGiaBan" value="0" required class="w-full p-1.5 border rounded outline-none text-sm"></div>
-                    </div>
-                    <div class="grid grid-cols-2 gap-2">
-                        <div><label class="block text-xs font-medium text-gray-500">Số Lượng Nhập</label><input type="number" id="nhapTonKho" min="1" value="1" required class="w-full p-1.5 border rounded outline-none text-sm"></div>
-                        <div><label class="block text-xs font-medium text-gray-500">Mức Tối Thiểu</label><input type="number" id="nhapToiThieu" value="5" required class="w-full p-1.5 border rounded outline-none text-sm"></div>
-                    </div>
-                    <button type="submit" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 rounded text-sm transition duration-200">Xác Nhận Nhập Kho</button>
-                </form>
-            </div>
-            <div id="thongBao" class="mt-4 p-3 rounded hidden text-center font-medium shadow-sm"></div>
-        </div>
-
-        <div class="lg:col-span-2 bg-white p-6 rounded-lg shadow-md">
-            <div class="flex justify-between items-center mb-4 border-b pb-2">
-                <h2 class="text-xl font-semibold text-gray-700">📦 Tình Trạng Kho Hàng (Thời gian thực)</h2>
-                <button onclick="taiDanhSachSanPham()" class="bg-gray-500 hover:bg-gray-600 text-white text-sm py-1 px-3 rounded">🔄 Tải lại kho</button>
-            </div>
-            <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse">
-                    <thead>
-                        <tr class="bg-gray-200 text-gray-700 uppercase text-sm">
-                            <th class="p-3 border">SKU</th><th class="p-3 border">Tên Sản Phẩm</th><th class="p-3 border">Danh Mục</th><th class="p-3 border">Giá Bán</th><th class="p-3 border-b bg-yellow-50 text-center">Tồn Kho</th>
-                        </tr>
-                    </thead>
-                    <tbody id="bangSanPham" class="text-gray-600 text-sm"></tbody>
-                </table>
-            </div>
-        </div>
-    </main>
-
-    <section class="container mx-auto my-8 px-4">
-        <div class="bg-white p-6 rounded-lg shadow-md border-t-4 border-purple-500">
-            <h2 class="text-xl font-semibold text-gray-700 mb-4 flex items-center gap-2">📑 Toàn Bộ Nhật Ký Đơn Hàng (Lưu vĩnh viễn trong file orders.csv)</h2>
-            <div class="overflow-x-auto max-h-96"> <table class="w-full text-left border-collapse">
-                    <thead>
-                        <tr class="bg-gray-100 text-gray-600 uppercase text-xs font-bold border-b sticky top-0">
-                            <th class="p-3 border bg-gray-100">Mã Đơn</th>
-                            <th class="p-3 border bg-gray-100">Thời Gian</th>
-                            <th class="p-3 border bg-gray-100">Khách Hàng</th>
-                            <th class="p-3 border bg-gray-100">Số Điện Thoại</th>
-                            <th class="p-3 border bg-gray-100">Sản Phẩm</th>
-                            <th class="p-3 border text-center bg-gray-100">SL</th>
-                            <th class="p-3 border text-right bg-gray-100">Doanh Thu</th>
-                            <th class="p-3 border text-right bg-purple-50 text-purple-700">Tiền Lãi</th>
-                        </tr>
-                    </thead>
-                    <tbody id="bangLichSuDonHang" class="text-gray-600 text-sm"></tbody>
-                </table>
-            </div>
-        </div>
-    </section>
-
-    <div id="modalHoaDon" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50 p-4">
-        <div class="bg-white rounded-lg shadow-2xl p-6 max-w-md w-full relative">
-            <button onclick="dongModalHoaDon()" class="absolute top-3 right-4 text-gray-400 hover:text-gray-600 text-xl font-bold">&times;</button>
-            <div id="vungInHoaDon" class="p-2 border border-dashed border-gray-300 rounded bg-amber-50/20">
-                <div class="text-center border-b border-gray-300 pb-2 mb-2">
-                    <h3 class="text-lg font-bold text-gray-800 uppercase tracking-wide">HÓA ĐƠN BÁN LẺ</h3>
-                    <p class="text-xs font-bold text-blue-600">CÔNG TY TNHH CÔNG NGHỆ TRÍ ĐỨC HÀ TĨNH</p>
-                    <p class="text-[10px] text-gray-400">Mã hóa đơn: <span id="hdMaDonHang" class="font-bold text-gray-700">--</span></p>
-                    <p class="text-[10px] text-gray-400">Ngày tạo: <span id="hdNgayTao">--/--/----</span></p>
-                </div>
-                <div class="text-xs border-b border-gray-200 pb-2 mb-2 text-gray-600 space-y-0.5">
-                    <p>👤 <strong>Khách hàng:</strong> <span id="hdTenKhach">--</span></p>
-                    <p>📞 <strong>Điện thoại:</strong> <span id="hdSdtKhach">--</span></p>
-                </div>
-                <div class="space-y-2 text-sm text-gray-700 mb-3">
-                    <div class="flex justify-between"><span class="font-medium text-gray-500">Sản phẩm mua:</span> <span id="hdTenSP" class="font-semibold text-right max-w-[200px]">--</span></div>
-                    <div class="flex justify-between"><span class="font-medium text-gray-500">Đơn giá:</span> <span id="hdDonGia">--</span></div>
-                    <div class="flex justify-between"><span class="font-medium text-gray-500">Số lượng:</span> <span id="hdSoLuong" class="font-bold">--</span></div>
-                </div>
-                <div class="border-t border-double border-gray-400 pt-3 flex justify-between items-center mb-1">
-                    <span class="font-bold text-gray-800 text-base">TỔNG TIỀN:</span>
-                    <span id="hdTongTien" class="text-xl font-black text-red-600">0 ₫</span>
-                </div>
-                <p class="text-center text-[10px] italic text-gray-400 mt-3">Cảm ơn quý khách. Hẹn gặp lại!</p>
-            </div>
-            <div class="mt-5 flex gap-3">
-                <button onclick="dongModalHoaDon()" class="w-1/3 bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-2 rounded text-sm transition">Đóng</button>
-                <button id="nutIn" onclick="window.print()" class="w-2/3 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 rounded text-sm shadow transition flex justify-center items-center gap-1">🖨️ In Hóa Đơn (Xuất PDF)</button>
-            </div>
+            <div class="stat-icon icon-green"><i class="fa-solid fa-chart-line"></i></div>
         </div>
     </div>
 
-    <script>
-        let danhSachGlobal = [];
+    <div class="main-content">
+        <div class="card">
+            <div class="card-title" style="color: var(--primary);">
+                <i class="fa-solid fa-cart-plus"></i> Tạo Đơn Hàng Mới
+            </div>
+            <form id="form-ban-hang">
+                <div class="form-group">
+                    <label>Mã Hàng Hóa (SKU)</label>
+                    <input type="text" id="skuMua" class="form-control" placeholder="Ví dụ: SP001" required>
+                </div>
+                <div class="form-group">
+                    <label>Số Lượng Chốt</label>
+                    <input type="number" id="soLuongMua" class="form-control" value="1" min="1" required>
+                </div>
+                <div class="form-group">
+                    <label>Tên Khách Hàng</label>
+                    <input type="text" id="tenKhach" class="form-control" placeholder="Nhập tên người mua">
+                </div>
+                <div class="form-group">
+                    <label>Số Điện Thoại</label>
+                    <input type="text" id="sdtKhach" class="form-control" placeholder="Nhập số điện thoại">
+                </div>
+                <button type="submit" class="btn btn-primary"><i class="fa-solid fa-bolt"></i> Chốt Đơn Ngay</button>
+            </form>
+        </div>
 
-        function dinhDangTien(so) {
-            return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(so);
-        }
+        <div class="card">
+            <div class="card-title" style="color: var(--success);">
+                <i class="fa-solid fa-download"></i> Nhập Hàng Vào Kho
+            </div>
+            <form id="form-nhap-kho">
+                <div class="form-group">
+                    <label>Mã Hàng Hóa (SKU)</label>
+                    <input type="text" id="skuNhap" class="form-control" placeholder="Ví dụ: SP001" required>
+                </div>
+                <div class="form-group">
+                    <label>Tên Sản Phẩm</label>
+                    <input type="text" id="tenSP" class="form-control" placeholder="Tên sản phẩm mới" required>
+                </div>
+                <div class="form-group">
+                    <label>Danh Mục</label>
+                    <input type="text" id="danhMuc" class="form-control" placeholder="Ví dụ: Thiết bị thông minh" required>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                    <div class="form-group">
+                        <label>Giá Nhập (đ)</label>
+                        <input type="number" id="giaNhap" class="form-control" placeholder="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Giá Bán (đ)</label>
+                        <input type="number" id="giaBan" class="form-control" placeholder="0" required>
+                    </div>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                    <div class="form-group">
+                        <label>Số Lượng Thêm</label>
+                        <input type="number" id="slNhap" class="form-control" placeholder="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Mức Tối Thiểu</label>
+                        <input type="number" id="toiThieu" class="form-control" value="5" required>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-success"><i class="fa-solid fa-plus"></i> Xác Nhận Nhập Kho</button>
+            </form>
+        </div>
+    </div>
 
-        function hienThongBao(noiDung, laLoi = false) {
-            const thongBao = document.getElementById('thongBao');
-            thongBao.className = `mt-4 p-3 rounded ${laLoi ? 'bg-red-100 text-red-700 border border-red-200' : 'bg-green-100 text-green-700 border border-green-200'} font-medium`;
-            thongBao.innerText = noiDung;
-            thongBao.classList.remove('hidden');
-            setTimeout(() => thongBao.classList.add('hidden'), 4000);
-        }
+    <div class="inventory-section">
+        <div class="card-title" style="margin-bottom: 0;"><i class="fa-solid fa-warehouse"></i> Nhật Ký Danh Mục Kho Hàng</div>
+        <div class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th>SKU</th>
+                        <th>Tên Sản Phẩm</th>
+                        <th>Danh Mục</th>
+                        <th>Giá Nhập</th>
+                        <th>Giá Bán</th>
+                        <th>Tồn Kho</th>
+                        <th>Trạng Thái</th>
+                    </tr>
+                </thead>
+                <tbody id="bang-kho">
+                    </tbody>
+            </table>
+        </div>
+    </div>
+</div>
 
-        async function taiDanhSachSanPham() {
-            try {
-                const response = await fetch('/api/san-pham');
-                danhSachGlobal = await response.json();
-                const bang = document.getElementById('bangSanPham');
-                const selectBox = document.getElementById('skuMua');
-                bang.innerHTML = '';
-                selectBox.innerHTML = '<option value="">-- Bấm để chọn sản phẩm --</option>';
+<div id="toast"></div>
 
-                danhSachGlobal.forEach(sp => {
-                    // CẢNH BÁO TỒN KHO THÔNG MINH BẰNG MÀU SẮC & BIỂU TƯỢNG
-                    const sapHetHang = sp.Ton_Kho <= sp.Toi_Thieu;
-                    const mauTonKho = sapHetHang ? 'text-red-600 font-bold bg-red-100 animate-pulse' : 'text-green-600 font-semibold';
-                    const bieuTuongCanhBao = sapHetHang ? '⚠️ ' : '';
+<script>
+    // Hàm hiển thị thông báo xịn thay cho Alert
+    function thongBao(msg, isSuccess = true) {
+        const toast = document.getElementById('toast');
+        toast.innerText = msg;
+        toast.style.background = isSuccess ? 'var(--success)' : 'var(--danger)';
+        toast.style.display = 'block';
+        setTimeout(() => { toast.style.display = 'none'; }, 3500);
+    }
 
-                    bang.innerHTML += `
-                        <tr class="hover:bg-gray-50 border-b">
-                            <td class="p-3 border font-mono font-bold">${sp.SKU}</td>
-                            <td class="p-3 border font-medium text-gray-800">${sp.Ten_San_Pham}</td>
-                            <td class="p-3 border">${sp.Danh_Muc}</td>
-                            <td class="p-3 border text-right">${dinhDangTien(sp.Gia_Ban)}</td>
-                            <td class="p-3 border text-center ${mauTonKho}">${bieuTuongCanhBao}${sp.Ton_Kho}</td>
-                        </tr>
-                    `;
-                    selectBox.innerHTML += `<option value="${sp.SKU}">${sp.Ten_San_Pham} (${sp.SKU})</option>`;
-                });
-            } catch (error) {
-                console.error("Lỗi khi tải dữ liệu sản phẩm:", error);
-            }
-        }
+    // Định dạng tiền tệ VND nhìn cho quen thuộc
+    function formatTien(so) {
+        return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(so);
+    }
 
-        async function taiLichSuDonHang() {
-            try {
-                const response = await fetch('/api/lich-su-don-hang');
-                const lichSu = await response.json();
-                const bang = document.getElementById('bangLichSuDonHang');
-                
-                bang.innerHTML = '';
-                if (lichSu.length === 0) {
-                    bang.innerHTML = `<tr><td colspan="8" class="p-4 text-center text-gray-400 italic">Chưa có giao dịch nào được lưu vĩnh viễn.</td></tr>`;
-                    return;
-                }
+    // Tải dữ liệu kho hàng từ máy chủ Render về hiển thị
+    async function taiKhoHang() {
+        try {
+            const res = await fetch('/api/san-pham');
+            const sanPham = await res.json();
+            const tbody = document.getElementById('bang-kho');
+            tbody.innerHTML = '';
+            
+            document.getElementById('stat-total-items').innerText = sanPham.length;
 
-                // Tính toán cộng dồn tài chính ngay từ file Excel khi load trang
-                let tongDT = 0, tongLN = 0;
+            sanPham.forEach(item => {
+                const checkTon = item.Ton_Kho <= item.Toi_Thieu;
+                const badgeClass = checkTon ? 'badge-danger' : 'badge-safe';
+                const badgeText = checkTon ? 'Sắp hết hàng' : 'An toàn';
 
-                // Đảo ngược mảng để đơn hàng mới nhất luôn nằm trên cùng
-                lichSu.reverse().forEach(don => {
-                    tongDT += Number(don.doanhThu);
-                    tongLN += Number(don.loiNhuan);
-
-                    bang.innerHTML += `
-                        <tr class="hover:bg-gray-50 border-b text-xs">
-                            <td class="p-3 border font-mono font-bold text-blue-600">${don.maDon}</td>
-                            <td class="p-3 border text-gray-400">${don.thoiGian}</td>
-                            <td class="p-3 border font-semibold text-gray-800">${don.tenKhach}</td>
-                            <td class="p-3 border font-mono">${don.sdtKhach}</td>
-                            <td class="p-3 border font-medium">${don.tenSP}</td>
-                            <td class="p-3 border text-center font-bold">${don.soLuong}</td>
-                            <td class="p-3 border text-right font-semibold">${dinhDangTien(don.doanhThu)}</td>
-                            <td class="p-3 border text-right font-bold text-purple-600 bg-purple-50/50">${dinhDangTien(don.loiNhuan)}</td>
-                        </tr>
-                    `;
-                });
-
-                // Đồng bộ số liệu lên các ô Thống kê trên đầu trang
-                document.getElementById('widgetDonHang').innerText = lichSu.length + " đơn";
-                document.getElementById('widgetDoanhThu').innerText = dinhDangTien(tongDT);
-                document.getElementById('widgetLoiNhuan').innerText = dinhDangTien(tongLN);
-
-            } catch (error) {
-                console.error("Lỗi tải nhật ký đơn vĩnh viễn:", error);
-            }
-        }
-
-        function capNhatGiaVaTonKho() {
-            const skuSelected = document.getElementById('skuMua').value;
-            const khuVucGoiY = document.getElementById('KhuVucGoiY');
-            if (!skuSelected) {
-                khuVucGoiY.classList.add('hidden');
-                document.getElementById('tongTamTinh').innerText = "0 ₫";
-                return;
-            }
-            const sp = danhSachGlobal.find(item => item.SKU === skuSelected);
-            if (sp) {
-                document.getElementById('goiYTonKho').innerText = sp.Ton_Kho;
-                document.getElementById('goiYGiaBan').innerText = dinhDangTien(sp.Gia_Ban);
-                khuVucGoiY.classList.remove('hidden');
-                document.getElementById('soLuongMua').value = 1;
-                tinhTamTinh();
-            }
-        }
-
-        function tinhTamTinh() {
-            const skuSelected = document.getElementById('skuMua').value;
-            const soLuong = Number(document.getElementById('soLuongMua').value);
-            if (!skuSelected) return;
-            const sp = danhSachGlobal.find(item => item.SKU === skuSelected);
-            if (sp) {
-                document.getElementById('tongTamTinh').innerText = dinhDangTien(sp.Gia_Ban * soLuong);
-            }
-        }
-
-        function moModalHoaDon(donHang, sp) {
-            document.getElementById('hdMaDonHang').innerText = donHang.maDon;
-            document.getElementById('hdNgayTao').innerText = donHang.thoiGian;
-            document.getElementById('hdTenKhach').innerText = donHang.tenKhach;
-            document.getElementById('hdSdtKhach').innerText = donHang.sdtKhach;
-            document.getElementById('hdTenSP').innerText = donHang.tenSP;
-            document.getElementById('hdDonGia').innerText = dinhDangTien(sp.Gia_Ban);
-            document.getElementById('hdSoLuong').innerText = donHang.soLuong;
-            document.getElementById('hdTongTien').innerText = dinhDangTien(donHang.doanhThu);
-            document.getElementById('modalHoaDon').classList.remove('hidden');
-        }
-
-        function dongModalHoaDon() {
-            document.getElementById('modalHoaDon').classList.add('hidden');
-        }
-
-        document.getElementById('formBanHang').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const skuMua = document.getElementById('skuMua').value;
-            const soLuongMua = Number(document.getElementById('soLuongMua').value);
-            const tenKhachHang = document.getElementById('tenKhachHang').value.trim();
-            const sdtKhachHang = document.getElementById('sdtKhachHang').value.trim();
-            const sanPhamGoc = danhSachGlobal.find(item => item.SKU === skuMua);
-
-            const response = await fetch('/api/don-hang', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ skuMua, soLuongMua, tenKhachHang, sdtKhachHang })
+                tbody.innerHTML += `
+                    <tr>
+                        <td style="font-weight: 600; color: var(--primary);">${item.SKU}</td>
+                        <td style="font-weight: 500;">${item.Ten_San_Pham}</td>
+                        <td style="color: var(--text-muted);">${item.Danh_Muc}</td>
+                        <td>${formatTien(item.Gia_Nhap)}</td>
+                        <td style="font-weight: 600;">${formatTien(item.Gia_Ban)}</td>
+                        <td style="font-weight: 700; text-align: center; color: ${checkTon ? 'var(--danger)' : 'inherit'}">${item.Ton_Kho}</td>
+                        <td><span class="badge ${badgeClass}">${badgeText}</span></td>
+                    </tr>
+                `;
             });
-            const ketQua = await response.json();
-            if (response.ok) {
-                hienThongBao(ketQua.message);
-                taiDanhSachSanPham();
-                taiLichSuDonHang(); 
-                document.getElementById('formBanHang').reset();
-                document.getElementById('KhuVucGoiY').classList.add('hidden');
-                document.getElementById('tongTamTinh').innerText = "0 ₫";
-                
-                moModalHoaDon(ketQua.donHang, sanPhamGoc);
-            } else {
-                hienThongBao(ketQua.error, true);
-            }
-        });
+        } catch (e) {
+            console.error("Không kéo được dữ liệu kho:", e);
+        }
+    }
 
-        document.getElementById('formNhapHang').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const data = {
-                SKU: document.getElementById('nhapSKU').value.trim(),
-                Ten_San_Pham: document.getElementById('nhapTen').value.trim(),
-                Danh_Muc: document.getElementById('nhapDanhMuc').value.trim(),
-                Gia_Nhap: Number(document.getElementById('nhapGiaNhap').value),
-                Gia_Ban: Number(document.getElementById('nhapGiaBan').value),
-                Ton_Kho: Number(document.getElementById('nhapTonKho').value),
-                Toi_Thieu: Number(document.getElementById('nhapToiThieu').value)
-            };
+    // Xử lý sự kiện chốt đơn hàng
+    document.getElementById('form-ban-hang').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const data = {
+            skuMua: document.getElementById('skuMua').value.trim(),
+            soLuongMua: Number(document.getElementById('soLuongMua').value),
+            tenKhachHang: document.getElementById('tenKhach').value.trim(),
+            sdtKhachHang: document.getElementById('sdtKhach').value.trim()
+        };
 
-            const response = await fetch('/api/nhap-kho', {
+        try {
+            const res = await fetch('/api/don-hang', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(data)
             });
-            const ketQua = await response.json();
-            if (response.ok) {
-                hienThongBao(ketQua.message);
-                taiDanhSachSanPham();
-                taiLichSuDonHang();
-                document.getElementById('formNhapHang').reset();
-            } else {
-                hienThongBao(ketQua.error, true);
-            }
-        });
+            const result = await res.json();
 
-        // Khởi động đồng bộ dữ liệu
-        taiDanhSachSanPham();
-        taiLichSuDonHang();
-    </script>
+            if (res.ok) {
+                thongBao(result.message, true);
+                document.getElementById('form-ban-hang').reset();
+                document.getElementById('soLuongMua').value = 1;
+                
+                // Cập nhật bảng tài chính trên đầu trang nếu API có trả về tổng quan
+                if (result.tongQuanHienTai) {
+                    document.getElementById('stat-revenue').innerText = formatTien(result.tongQuanHienTai.doanhThu);
+                    document.getElementById('stat-profit').innerText = formatTien(result.tongQuanHienTai.loiNhuan);
+                }
+                taiKhoHang();
+            } else {
+                thongBao(result.error || "Gặp lỗi khi chốt đơn!", false);
+            }
+        } catch (error) {
+            thongBao("Lỗi kết nối máy chủ!", false);
+        }
+    });
+
+    // Xử lý sự kiện nhập thêm kho
+    document.getElementById('form-nhap-kho').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const data = {
+            SKU: document.getElementById('skuNhap').value.trim(),
+            Ten_San_Pham: document.getElementById('tenSP').value.trim(),
+            Danh_Muc: document.getElementById('danhMuc').value.trim(),
+            Gia_Nhap: Number(document.getElementById('giaNhap').value),
+            Gia_Ban: Number(document.getElementById('giaBan').value),
+            Ton_Kho: Number(document.getElementById('slNhap').value),
+            Toi_Thieu: Number(document.getElementById('toiThieu').value)
+        };
+
+        try {
+            const res = await fetch('/api/nhap-kho', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            const result = await res.json();
+
+            if (res.ok) {
+                thongBao(result.message, true);
+                document.getElementById('form-nhap-kho').reset();
+                document.getElementById('toiThieu').value = 5;
+                taiKhoHang();
+            } else {
+                thongBao("Gặp lỗi khi nhập kho hàng!", false);
+            }
+        } catch (error) {
+            thongBao("Lỗi kết nối máy chủ!", false);
+        }
+    });
+
+    // Tự động kích hoạt tải dữ liệu ngay khi mở web app
+    taiKhoHang();
+</script>
 </body>
 </html>
