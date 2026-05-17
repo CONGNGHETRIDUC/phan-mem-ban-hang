@@ -1,14 +1,13 @@
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
-const axios = require('axios'); // Thư viện để tự động gửi file lên GitHub
+const axios = require('axios');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Cấu hình lưu file ở thư mục data cục bộ (Cả máy nhà lẫn Cloud)
 const thuMucData = path.join(__dirname, 'data');
 const fileSanPham = path.join(thuMucData, 'products.csv');
 const fileDonHang = path.join(thuMucData, 'orders.csv');
@@ -17,11 +16,9 @@ if (!fs.existsSync(thuMucData)) {
     fs.mkdirSync(thuMucData, { recursive: true });
 }
 
-// CẤU HÌNH GITHUB ĐỂ LƯU TRỮ VĨNH VIỄN (Render tự lấy thông tin này)
 const GITHUB_TOKEN = process.env.GH_TOKEN; 
 const GITHUB_REPO = "CONGNGHETRIDUC/phan-mem-ban-hang";
 
-// Hàm tự động sao lưu file Excel lên GitHub ngay khi có đơn hàng mới
 async function saoLuuLenGitHub(tenFile, duongDanFile) {
     if (!GITHUB_TOKEN) return console.log("Chạy ở máy nhà hoặc chưa cấu hình Token, bỏ qua sao lưu Cloud.");
     try {
@@ -32,7 +29,7 @@ async function saoLuuLenGitHub(tenFile, duongDanFile) {
         try {
             const res = await axios.get(url, { headers: { Authorization: `token ${GITHUB_TOKEN}` } });
             sha = res.data.sha;
-        } catch (e) { /* File chưa tồn tại trên repo */ }
+        } catch (e) { /* File chưa tồn tại */ }
 
         await axios.put(url, {
             message: `Tự động cập nhật nhật ký đơn hàng: ${new Date().toLocaleString()}`,
@@ -43,16 +40,13 @@ async function saoLuuLenGitHub(tenFile, duongDanFile) {
         });
         console.log(`[GitHub] Đã đồng bộ thành công file ${tenFile} lên đám mây vĩnh viễn!`);
     } catch (error) {
-        console.error("[GitHub Lỗi] Không thể sao lưu file:", error.response ? error.response.data : error.message);
+        console.error("[GitHub Lỗi] Không thể sao lưu file:", error.message);
     }
 }
 
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'index.html'));
-});
+app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
 
-// ==================== HÀM ĐỌC/GHI FILE CSV AN TOÀN ====================
-
+// ==================== HÀM XỬ LÝ CSV TỰ ĐỘNG KHÔNG LỖI ====================
 function docFileCSV(duongDanFile) {
     if (!fs.existsSync(duongDanFile)) return [];
     const noiDung = fs.readFileSync(duongDanFile, 'utf8').trim();
@@ -80,9 +74,10 @@ function ghiFileCSV(duongDanFile, mangDuLieu) {
     fs.writeFileSync(duongDanFile, '\ufeff' + [tieuDe, ...cacDong].join('\n'), 'utf8');
 }
 
-// ==================== API XỬ LÝ BÁN HÀNG ====================
-
+// ==================== HỆ THỐNG API ĐỒNG BỘ ====================
 app.get('/api/san-pham', (req, res) => res.json(docFileCSV(fileSanPham)));
+
+// API Lấy toàn bộ danh sách lịch sử đơn hàng để vẽ bảng
 app.get('/api/lich-su-don-hang', (req, res) => res.json(docFileCSV(fileDonHang)));
 
 app.post('/api/don-hang', async (req, res) => {
@@ -104,14 +99,13 @@ app.post('/api/don-hang', async (req, res) => {
     const maDonMoi = "HD" + String(danhSachDonCu.length + 1).padStart(3, '0');
     const bayGio = new Date();
     const thoiGian = `${bayGio.getDate()}/${bayGio.getMonth()+1}/${bayGio.getFullYear()} ${bayGio.getHours()}:${String(bayGio.getMinutes()).padStart(2, '0')}`;
-    const tenKhachSach = (tenKhachHang || "Khách vãng lai").replace(/,/g, ' ');
 
     const thongTinDonHang = {
         maDon: maDonMoi,
         thoiGian: thoiGian,
-        tenKhach: tenKhachSach,
+        tenKhach: (tenKhachHang || "Khách vãng lai").replace(/,/g, ' '),
         sdtKhach: sdtKhachHang || "---",
-        tenSP: sanPham.Ten_San_Pham,
+        tenSP: sanPham.Ten_San_Pham.replace(/,/g, ' '),
         soLuong: soLuongMua,
         doanhThu: doanhThuDon,
         loiNhuan: loiNhuanDon
@@ -120,24 +114,10 @@ app.post('/api/don-hang', async (req, res) => {
     danhSachDonCu.push(thongTinDonHang);
     ghiFileCSV(fileDonHang, danhSachDonCu);
 
-    // KÍCH HOẠT TỰ ĐỘNG ĐẨY FILE LÊN GITHUB ĐỂ LƯU TRỮ VĨNH VIỄN
     await saoLuuLenGitHub('orders.csv', fileDonHang);
     await saoLuuLenGitHub('products.csv', fileSanPham);
 
-    let updateDonHang = docFileCSV(fileDonHang);
-    let tongDoanhThu = 0, tongLoiNhuan = 0;
-    updateDonHang.forEach(don => {
-        if (don) {
-            tongDoanhThu += Number(don.doanhThu || 0);
-            tongLoiNhuan += Number(don.loiNhuan || 0);
-        }
-    });
-
-    res.json({ 
-        message: "Chốt đơn thành công! Đã sao lưu dữ liệu lên đám mây an toàn vĩnh viễn.", 
-        donHang: thongTinDonHang,
-        tongQuanHienTai: { soDonHang: updateDonHang.length, doanhThu: tongDoanhThu, loiNhuan: tongLoiNhuan }
-    });
+    res.json({ message: "Chốt đơn thành công!", donHang: thongTinDonHang });
 });
 
 app.post('/api/nhap-kho', async (req, res) => {
@@ -150,7 +130,12 @@ app.post('/api/nhap-kho', async (req, res) => {
         sanPhamCoSan.Gia_Nhap = Number(Gia_Nhap);
         sanPhamCoSan.Gia_Ban = Number(Gia_Ban);
     } else {
-        khoHang.push({ SKU, Ten_San_Pham, Danh_Muc, Gia_Nhap, Gia_Ban, Ton_Kho, Toi_Thieu });
+        khoHang.push({ 
+            SKU, 
+            Ten_San_Pham: Ten_San_Pham.replace(/,/g, ' '), 
+            Danh_Muc: Danh_Muc.replace(/,/g, ' '), 
+            Gia_Nhap, Gia_Ban, Ton_Kho, Toi_Thieu 
+        });
     }
     
     ghiFileCSV(fileSanPham, khoHang);
@@ -159,5 +144,5 @@ app.post('/api/nhap-kho', async (req, res) => {
 });
 
 app.listen(PORT, '0.0.0.0', () => {
-    console.log(`🚀 HỆ THỐNG TRÍ ĐỨC TECH ĐANG ONLINE TRÊN CỔNG: ${PORT}`);
+    console.log(`🚀 HỆ THỐNG TRÍ ĐỨC TECH ONLINE TRÊN CỔNG: ${PORT}`);
 });

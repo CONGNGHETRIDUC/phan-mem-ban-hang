@@ -19,25 +19,10 @@
             --border: #e2e8f0;
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Inter', sans-serif;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+        body { background-color: var(--bg-primary); color: var(--text-main); padding: 24px; }
+        .container { max-width: 1200px; margin: 0 auto; }
 
-        body {
-            background-color: var(--bg-primary);
-            color: var(--text-main);
-            padding: 24px;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        /* Header công ty đẳng cấp */
         header {
             display: flex;
             justify-content: space-between;
@@ -47,32 +32,15 @@
             border-bottom: 1px solid var(--border);
         }
 
-        .logo-area h1 {
-            font-size: 24px;
-            font-weight: 700;
-            color: var(--primary);
-            letter-spacing: -0.5px;
-        }
-
-        .logo-area p {
-            font-size: 14px;
-            color: var(--text-muted);
-            margin-top: 4px;
-        }
-
+        .logo-area h1 { font-size: 24px; font-weight: 700; color: var(--primary); letter-spacing: -0.5px; }
+        .logo-area p { font-size: 14px; color: var(--text-muted); margin-top: 4px; }
+        
         .status-badge {
-            background: #dcfce7;
-            color: #15803d;
-            padding: 6px 12px;
-            border-radius: 99px;
-            font-size: 13px;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 6px;
+            background: #dcfce7; color: #15803d; padding: 6px 12px;
+            border-radius: 99px; font-size: 13px; font-weight: 600;
+            display: flex; align-items: center; gap: 6px;
         }
 
-        /* Thẻ thống kê tài chính trực quan */
         .dashboard-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
@@ -81,190 +49,74 @@
         }
 
         .stat-card {
-            background: var(--card-bg);
-            padding: 24px;
-            border-radius: 16px;
-            border: 1px solid var(--border);
-            box-shadow: 0 1px 3px rgba(0,0,0,0.02);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
+            background: var(--card-bg); padding: 24px; border-radius: 16px;
+            border: 1px solid var(--border); box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+            display: flex; align-items: center; justify-content: space-between;
         }
 
-        .stat-info h3 {
-            font-size: 14px;
-            color: var(--text-muted);
-            font-weight: 500;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .stat-info p {
-            font-size: 24px;
-            font-weight: 700;
-            margin-top: 8px;
-        }
-
+        .stat-info h3 { font-size: 14px; color: var(--text-muted); font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; }
+        .stat-info p { font-size: 24px; font-weight: 700; margin-top: 8px; }
+        
         .stat-icon {
-            width: 48px;
-            height: 48px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
+            width: 48px; height: 48px; border-radius: 12px;
+            display: flex; align-items: center; justify-content: center; font-size: 20px;
         }
-
         .icon-blue { background: #eff6ff; color: #2563eb; }
         .icon-green { background: #ecfdf5; color: #10b981; }
         .icon-orange { background: #fff7ed; color: #f97316; }
 
-        /* Bố cục 2 cột xử lý nghiệp vụ */
-        .main-content {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 32px;
-            margin-bottom: 32px;
-        }
-
-        @media (max-width: 768px) {
-            .main-content { grid-template-columns: 1fr; }
-        }
+        .main-content { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; margin-bottom: 32px; }
+        @media (max-width: 768px) { .main-content { grid-template-columns: 1fr; } }
 
         .card {
-            background: var(--card-bg);
-            border-radius: 16px;
-            border: 1px solid var(--border);
-            padding: 24px;
+            background: var(--card-bg); border-radius: 16px;
+            border: 1px solid var(--border); padding: 24px;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.01);
         }
 
-        .card-title {
-            font-size: 18px;
-            font-weight: 600;
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        /* Form nhập liệu chuyên nghiệp */
-        .form-group {
-            margin-bottom: 16px;
-        }
-
-        .form-group label {
-            display: block;
-            font-size: 13px;
-            font-weight: 600;
-            margin-bottom: 6px;
-            color: #475569;
-        }
-
+        .card-title { font-size: 18px; font-weight: 600; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+        .form-group { margin-bottom: 16px; }
+        .form-group label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; color: #475569; }
+        
         .form-control {
-            width: 100px;
-            width: 100%;
-            padding: 10px 14px;
-            border-radius: 8px;
-            border: 1px solid var(--border);
-            font-size: 14px;
-            transition: all 0.2s;
-            background: #f8fafc;
+            width: 100%; padding: 10px 14px; border-radius: 8px;
+            border: 1px solid var(--border); font-size: 14px;
+            transition: all 0.2s; background: #f8fafc;
         }
-
         .form-control:focus {
-            outline: none;
-            border-color: var(--primary);
-            background: #fff;
+            outline: none; border-color: var(--primary); background: #fff;
             box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
         }
 
         .btn {
-            width: 100%;
-            padding: 12px;
-            border: none;
-            border-radius: 8px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
+            width: 100%; padding: 12px; border: none; border-radius: 8px;
+            font-size: 14px; font-weight: 600; cursor: pointer;
+            transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px;
         }
-
         .btn-primary { background: var(--primary); color: white; }
         .btn-primary:hover { background: var(--primary-hover); }
         .btn-success { background: var(--success); color: white; }
         .btn-success:hover { background: #059669; }
 
-        /* Bảng hiển thị kho hàng scannable cực đã mắt */
-        .inventory-section {
-            background: var(--card-bg);
-            border-radius: 16px;
-            border: 1px solid var(--border);
-            padding: 24px;
-        }
-
-        .table-responsive {
-            overflow-x: auto;
-            margin-top: 16px;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            text-align: left;
-            font-size: 14px;
-        }
-
-        th {
-            background: #f1f5f9;
-            padding: 14px 16px;
-            font-weight: 600;
-            color: #475569;
-            border-bottom: 2px solid var(--border);
-        }
-
-        td {
-            padding: 14px 16px;
-            border-bottom: 1px solid var(--border);
-            color: #334155;
-        }
-
+        .inventory-section { background: var(--card-bg); border-radius: 16px; border: 1px solid var(--border); padding: 24px; margin-bottom: 32px; }
+        .table-responsive { overflow-x: auto; margin-top: 16px; }
+        
+        table { width: 100%; border-collapse: collapse; text-align: left; font-size: 14px; }
+        th { background: #f1f5f9; padding: 14px 16px; font-weight: 600; color: #475569; border-bottom: 2px solid var(--border); }
+        td { padding: 14px 16px; border-bottom: 1px solid var(--border); color: #334155; }
         tr:hover td { background: #f8fafc; }
 
-        /* Custom Badge định dạng trạng thái kho */
-        .badge {
-            padding: 4px 8px;
-            border-radius: 6px;
-            font-size: 12px;
-            font-weight: 600;
-        }
+        .badge { padding: 4px 8px; border-radius: 6px; font-size: 12px; font-weight: 600; }
         .badge-safe { background: #dcfce7; color: #16a34a; }
         .badge-danger { background: #fee2e2; color: #dc2626; }
 
-        /* Hộp thông báo nổi (Toast Notification) tinh tế */
         #toast {
-            position: fixed;
-            top: 24px;
-            right: 24px;
-            padding: 16px 24px;
-            border-radius: 12px;
-            color: white;
-            font-weight: 500;
-            font-size: 14px;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-            display: none;
-            z-index: 1000;
+            position: fixed; top: 24px; right: 24px; padding: 16px 24px;
+            border-radius: 12px; color: white; font-weight: 500; font-size: 14px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); display: none; z-index: 1000;
             animation: slideIn 0.3s ease;
         }
-
-        @keyframes slideIn {
-            from { transform: translateX(100%); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
+        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
     </style>
 </head>
 <body>
@@ -372,8 +224,30 @@
         </div>
     </div>
 
+    <div class="inventory-section" style="border-left: 4px solid var(--primary);">
+        <div class="card-title" style="margin-bottom: 0; color: var(--primary);"><i class="fa-solid fa-clock-rotate-left"></i> Nhật Ký Lịch Sử Đơn Hàng Đã Bán</div>
+        <div class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Mã Đơn</th>
+                        <th>Thời Gian</th>
+                        <th>Khách Hàng</th>
+                        <th>Số ĐT</th>
+                        <th>Sản Phẩm</th>
+                        <th>SL</th>
+                        <th>Doanh Thu</th>
+                        <th>Lợi Nhuận</th>
+                    </tr>
+                </thead>
+                <tbody id="bang-don-hang">
+                    </tbody>
+            </table>
+        </div>
+    </div>
+
     <div class="inventory-section">
-        <div class="card-title" style="margin-bottom: 0;"><i class="fa-solid fa-warehouse"></i> Nhật Ký Danh Mục Kho Hàng</div>
+        <div class="card-title" style="margin-bottom: 0; color: var(--success);"><i class="fa-solid fa-warehouse"></i> Nhật Ký Danh Mục Kho Hàng</div>
         <div class="table-responsive">
             <table>
                 <thead>
@@ -397,7 +271,6 @@
 <div id="toast"></div>
 
 <script>
-    // Hàm hiển thị thông báo xịn thay cho Alert
     function thongBao(msg, isSuccess = true) {
         const toast = document.getElementById('toast');
         toast.innerText = msg;
@@ -406,19 +279,17 @@
         setTimeout(() => { toast.style.display = 'none'; }, 3500);
     }
 
-    // Định dạng tiền tệ VND nhìn cho quen thuộc
     function formatTien(so) {
         return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(so);
     }
 
-    // Tải dữ liệu kho hàng từ máy chủ Render về hiển thị
+    // Tải dữ liệu kho hàng
     async function taiKhoHang() {
         try {
             const res = await fetch('/api/san-pham');
             const sanPham = await res.json();
             const tbody = document.getElementById('bang-kho');
             tbody.innerHTML = '';
-            
             document.getElementById('stat-total-items').innerText = sanPham.length;
 
             sanPham.forEach(item => {
@@ -438,12 +309,47 @@
                     </tr>
                 `;
             });
-        } catch (e) {
-            console.error("Không kéo được dữ liệu kho:", e);
-        }
+        } catch (e) { console.error("Lỗi tải kho hàng:", e); }
     }
 
-    // Xử lý sự kiện chốt đơn hàng
+    // TẢI DỮ LIỆU LỊCH SỬ ĐƠN HÀNG VÀ UPDATE O THỐNG KÊ TÀI CHÍNH
+    async function taiLichSuDonHang() {
+        try {
+            const res = await fetch('/api/lich-su-don-hang');
+            const danhSachDon = await res.json();
+            const tbody = document.getElementById('bang-don-hang');
+            tbody.innerHTML = '';
+
+            let tongDoanhThu = 0;
+            let tongLoiNhuan = 0;
+
+            // Đảo ngược danh sách để đơn hàng mới nhất hiện lên trên đầu
+            danhSachDon.reverse().forEach(don => {
+                tongDoanhThu += Number(don.doanhThu || 0);
+                tongLoiNhuan += Number(don.loiNhuan || 0);
+
+                tbody.innerHTML += `
+                    <tr>
+                        <td style="font-weight: 600; color: #475569;">${don.maDon}</td>
+                        <td style="font-size: 13px; color: var(--text-muted);">${don.thoiGian}</td>
+                        <td style="font-weight: 500;">${don.tenKhach}</td>
+                        <td>${don.sdtKhach}</td>
+                        <td style="font-weight: 500;">${don.tenSP}</td>
+                        <td style="font-weight: 600; text-align: center;">${don.soLuong}</td>
+                        <td style="color: var(--primary); font-weight: 600;">${formatTien(don.doanhThu)}</td>
+                        <td style="color: var(--success); font-weight: 600;">${formatTien(don.loiNhuan)}</td>
+                    </tr>
+                `;
+            });
+
+            // Ghi đè số tiền tích lũy lên các ô thống kê đầu trang
+            document.getElementById('stat-revenue').innerText = formatTien(tongDoanhThu);
+            document.getElementById('stat-profit').innerText = formatTien(tongLoiNhuan);
+
+        } catch (e) { console.error("Lỗi tải lịch sử đơn hàng:", e); }
+    }
+
+    // Xử lý chốt đơn
     document.getElementById('form-ban-hang').addEventListener('submit', async (e) => {
         e.preventDefault();
         const data = {
@@ -466,56 +372,20 @@
                 document.getElementById('form-ban-hang').reset();
                 document.getElementById('soLuongMua').value = 1;
                 
-                // Cập nhật bảng tài chính trên đầu trang nếu API có trả về tổng quan
-                if (result.tongQuanHienTai) {
-                    document.getElementById('stat-revenue').innerText = formatTien(result.tongQuanHienTai.doanhThu);
-                    document.getElementById('stat-profit').innerText = formatTien(result.tongQuanHienTai.loiNhuan);
-                }
+                // Chốt xong tải lại cả kho và lịch sử đơn để cập nhật số liệu ngay
                 taiKhoHang();
+                taiLichSuDonHang();
             } else {
                 thongBao(result.error || "Gặp lỗi khi chốt đơn!", false);
             }
-        } catch (error) {
-            thongBao("Lỗi kết nối máy chủ!", false);
-        }
+        } catch (error) { thongBao("Lỗi kết nối máy chủ!", false); }
     });
 
-    // Xử lý sự kiện nhập thêm kho
+    // Xử lý nhập kho
     document.getElementById('form-nhap-kho').addEventListener('submit', async (e) => {
         e.preventDefault();
         const data = {
             SKU: document.getElementById('skuNhap').value.trim(),
             Ten_San_Pham: document.getElementById('tenSP').value.trim(),
             Danh_Muc: document.getElementById('danhMuc').value.trim(),
-            Gia_Nhap: Number(document.getElementById('giaNhap').value),
-            Gia_Ban: Number(document.getElementById('giaBan').value),
-            Ton_Kho: Number(document.getElementById('slNhap').value),
-            Toi_Thieu: Number(document.getElementById('toiThieu').value)
-        };
-
-        try {
-            const res = await fetch('/api/nhap-kho', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data)
-            });
-            const result = await res.json();
-
-            if (res.ok) {
-                thongBao(result.message, true);
-                document.getElementById('form-nhap-kho').reset();
-                document.getElementById('toiThieu').value = 5;
-                taiKhoHang();
-            } else {
-                thongBao("Gặp lỗi khi nhập kho hàng!", false);
-            }
-        } catch (error) {
-            thongBao("Lỗi kết nối máy chủ!", false);
-        }
-    });
-
-    // Tự động kích hoạt tải dữ liệu ngay khi mở web app
-    taiKhoHang();
-</script>
-</body>
-</html>
+            Gia_Nhap: Number(document.getElementById('
